@@ -46,6 +46,20 @@ add_compile_options(
 include_directories(${PROJECT_SOURCE_DIR}/tensor)
 include_directories(${PROJECT_SOURCE_DIR}/kernels)
 include_directories(${PROJECT_SOURCE_DIR}/memory)
+include_directories(${PROJECT_SOURCE_DIR}/viz)
+
+# ── OpenGL + CUDA interop (optional) ────────────────────────────────────────
+# Requires: libglfw3-dev libglew-dev  (sudo apt install libglfw3-dev libglew-dev)
+find_package(OpenGL QUIET)
+find_package(glfw3  QUIET)
+find_package(GLEW   QUIET)
+if(OpenGL_FOUND AND glfw3_FOUND AND GLEW_FOUND)
+  set(HAS_OPENGL TRUE)
+  message(STATUS "OpenGL found — building gravity_viz (SM heatmap)")
+else()
+  set(HAS_OPENGL FALSE)
+  message(STATUS "OpenGL/GLFW/GLEW not found — gravity_viz skipped (use Python frontend)")
+endif()
 
 # ── Helper macro: add a CUDA executable ──────────────────────────────────────
 macro(add_cuda_exe target)
@@ -95,3 +109,20 @@ gtest_discover_tests(test_reduce)
 # ── pybind11 Python module ───────────────────────────────────────────────────
 pybind11_add_module(gravity_sort_py viz/gravity_sort.cpp)
 target_link_libraries(gravity_sort_py PRIVATE cublas)
+
+# ── OpenGL + CUDA interop visualizer ─────────────────────────────────────────
+if(HAS_OPENGL)
+  add_executable(gravity_viz viz/gl_interop.cu)
+  set_target_properties(gravity_viz PROPERTIES
+    CUDA_SEPARABLE_COMPILATION ON
+    CUDA_RESOLVE_DEVICE_SYMBOLS ON
+  )
+  target_link_libraries(gravity_viz PRIVATE
+    OpenGL::GL
+    glfw
+    GLEW::GLEW
+    cublas
+  )
+  target_compile_definitions(gravity_viz PRIVATE HAS_OPENGL=1)
+  message(STATUS "gravity_viz target added")
+endif()
