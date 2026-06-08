@@ -1,4 +1,4 @@
-# ⚡ GravitySort
+# GravitySort
 
 > **GPU-accelerated sorting & ML reduction framework** — a deep-dive into CUDA kernel engineering, memory hierarchy optimization, and ML systems primitives.
 
