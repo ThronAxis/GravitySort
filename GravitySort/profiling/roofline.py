@@ -65,6 +65,8 @@ def roofline_peak(intensity, peak_tflops, peak_bw_tbps):
     return min(compute_bound, memory_bound)
 
 def main():
+    import sys
+    sys.stdout.reconfigure(encoding='utf-8', errors='replace')
     parser = argparse.ArgumentParser()
     parser.add_argument("--results", default=None, help="JSON file with kernel measurements")
     parser.add_argument("--output",  default="profiling/roofline.png")
