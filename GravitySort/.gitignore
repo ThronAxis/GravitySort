@@ -1,0 +1,53 @@
+# GravitySort — .gitignore
+
+# Build artifacts
+build/
+cmake-build-*/
+*.o
+*.a
+*.so
+*.d
+
+# CUDA compiled outputs
+*.cubin
+*.fatbin
+*.ptx
+
+# CMake generated
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+Makefile
+CTestTestfile.cmake
+
+# Nsight profiles
+*.nsys-rep
+*.ncu-rep
+*.sqlite
+*.qdstrm
+*.qdrep
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.egg-info/
+dist/
+.venv/
+venv/
+
+# Generated plots (keep the committed baseline)
+profiling/roofline.png
+
+# IDE
+.vscode/
+.idea/
+*.code-workspace
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Kaggle
+*.ipynb_checkpoints/
