@@ -37,8 +37,9 @@ dist/
 .venv/
 venv/
 
-# Generated plots (keep the committed baseline)
-profiling/roofline.png
+# Generated plots — track as demo outputs
+!profiling/roofline.png
+!viz/sort_animation.png
 
 # IDE
 .vscode/
