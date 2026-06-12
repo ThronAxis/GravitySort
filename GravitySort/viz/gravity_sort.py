@@ -9,6 +9,8 @@ import time
 import sys
 import os
 
+sys.stdout.reconfigure(encoding='utf-8', errors='replace')
+
 # Try to import the compiled pybind11 module (only available after build)
 try:
     import gravity_sort_py as gs
@@ -103,7 +105,7 @@ def animate_sort_pygame(N=128, algorithm="bitonic"):
     pygame.init()
     W, H = 900, 500
     screen = pygame.display.set_mode((W, H))
-    pygame.display.set_caption(f"GravitySort ⚡ {algorithm.title()} Sort")
+    pygame.display.set_caption(f"GravitySort [GPU] {algorithm.title()} Sort")
     clock = pygame.time.Clock()
     BG    = (13, 17, 23)
     BAR_W = max(1, W // N)
@@ -142,7 +144,7 @@ if __name__ == "__main__":
     parser.add_argument("--interval",  type=int,  default=30,       help="Animation interval ms")
     args = parser.parse_args()
 
-    print(f"GravitySort ⚡ Python Frontend")
+    print(f"GravitySort [GPU Sim] Python Frontend")
     print(f"  Algorithm : {args.algo}  N={args.n}  Backend={args.backend}")
     if args.backend == "pygame":
         animate_sort_pygame(args.n, args.algo)
