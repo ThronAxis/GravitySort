@@ -20,6 +20,9 @@
  *   Run with: python viz/gravity_sort.py --backend matplotlib
  */
 
+#ifdef HAS_OPENGL
+#include <GL/glew.h>
+#endif
 #include <cuda_runtime.h>
 #include <cuda_gl_interop.h>
 #include <device_launch_parameters.h>
@@ -27,14 +30,18 @@
 #include <stdlib.h>
 #include <math.h>
 
+
 // ─── Guard: only compile on platforms with OpenGL ─────────────────────────
 #if defined(__has_include) && __has_include(<GL/glew.h>) && __has_include(<GLFW/glfw3.h>)
+#ifndef HAS_OPENGL
 #define HAS_OPENGL 1
-#include <GL/glew.h>
+#endif
 #include <GLFW/glfw3.h>
 #else
+#ifndef HAS_OPENGL
 #define HAS_OPENGL 0
-#warning "OpenGL/GLFW not found — gl_interop.cu will compile as stub. Use viz/gravity_sort.py instead."
+#endif
+#warning "OpenGL/GLFW not found — gl_interop.cu will compile as stub."
 #endif
 
 #define CHECK_CUDA(call)                                                      \

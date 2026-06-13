@@ -17,6 +17,7 @@
 #include <stdlib.h>
 #include <assert.h>
 #include <string.h>
+#include <typeinfo>
 
 #define CHECK_CUDA(call)                                                          \
   do {                                                                            \
