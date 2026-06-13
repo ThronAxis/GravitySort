@@ -8,6 +8,7 @@
 #include <vector>
 #include <algorithm>
 #include <random>
+#include <numeric>
 #include <cstdint>
 
 // ─── Helper: generate random data ────────────────────────────────────────
