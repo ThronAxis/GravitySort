@@ -1,48 +1,39 @@
-{
+"""
+Completely rewrites GravitySort_Kaggle.ipynb with a clean, working version.
+Uses wget zip download (avoids git DNS issues on Kaggle).
+Repo: ThronAxis/GravitySort (renamed from GravityShort_Project_file)
+"""
+import json
+
+NB = {
  "metadata": {
-  "kernelspec": {
-   "display_name": "Python 3",
-   "language": "python",
-   "name": "python3"
-  },
-  "language_info": {
-   "name": "python",
-   "version": "3.10.0"
-  },
+  "kernelspec": {"display_name": "Python 3", "language": "python", "name": "python3"},
+  "language_info": {"name": "python", "version": "3.10.0"},
   "kaggle": {
    "accelerator": "gpu",
-   "isGpuEnabled": true,
-   "isInternetEnabled": true,
+   "isGpuEnabled": True,
+   "isInternetEnabled": True,
    "language": "python",
    "sourceType": "notebook"
   }
  },
  "nbformat": 4,
  "nbformat_minor": 5,
- "cells": [
-  {
-   "cell_type": "markdown",
-   "id": "hdr",
-   "metadata": {},
-   "source": [
-    "# GravitySort - GPU Sorting & ML Reduction Framework\n\n**Kaggle GPU Notebook** | Builds and benchmarks CUDA C++ kernels on T4/P100."
-   ]
-  },
-  {
-   "cell_type": "markdown",
-   "id": "s0",
-   "metadata": {},
-   "source": [
-    "## Section 0 - GPU & Environment Check"
-   ]
-  },
-  {
-   "cell_type": "code",
-   "execution_count": null,
-   "id": "gpu-check",
-   "metadata": {},
-   "outputs": [],
-   "source": [
+ "cells": []
+}
+
+def md(id_, text):
+    return {"cell_type": "markdown", "id": id_, "metadata": {}, "source": [text]}
+
+def code(id_, lines):
+    return {"cell_type": "code", "execution_count": None, "id": id_,
+            "metadata": {}, "outputs": [], "source": lines}
+
+# ── Section 0: GPU Check ─────────────────────────────────────────────────────
+NB["cells"].append(md("hdr", "# GravitySort - GPU Sorting & ML Reduction Framework\n\n**Kaggle GPU Notebook** | Builds and benchmarks CUDA C++ kernels on T4/P100."))
+
+NB["cells"].append(md("s0", "## Section 0 - GPU & Environment Check"))
+NB["cells"].append(code("gpu-check", [
     "import subprocess, os, sys\n",
     "\n",
     "def run(cmd):\n",
@@ -58,24 +49,12 @@
     "run('nvcc --version')\n",
     "run('cmake --version')\n",
     "run('ninja --version')\n",
-    "print('CPUs:', os.cpu_count())\n"
-   ]
-  },
-  {
-   "cell_type": "markdown",
-   "id": "s1",
-   "metadata": {},
-   "source": [
-    "## Section 1 - Download Project"
-   ]
-  },
-  {
-   "cell_type": "code",
-   "execution_count": null,
-   "id": "download",
-   "metadata": {},
-   "outputs": [],
-   "source": [
+    "print('CPUs:', os.cpu_count())\n",
+]))
+
+# ── Section 1: Download Project ───────────────────────────────────────────────
+NB["cells"].append(md("s1", "## Section 1 - Download Project"))
+NB["cells"].append(code("download", [
     "import os\n",
     "\n",
     "ZIP_URL     = 'https://github.com/ThronAxis/GravitySort/archive/refs/heads/main.zip'\n",
@@ -96,24 +75,12 @@
     "\n",
     "assert os.path.isdir(PROJECT_DIR), f'Not found: {PROJECT_DIR}'\n",
     "print('Project files:')\n",
-    "run(f'find {PROJECT_DIR} -type f | sort')\n"
-   ]
-  },
-  {
-   "cell_type": "markdown",
-   "id": "s1b",
-   "metadata": {},
-   "source": [
-    "## Section 1b - Install Dependencies"
-   ]
-  },
-  {
-   "cell_type": "code",
-   "execution_count": null,
-   "id": "deps",
-   "metadata": {},
-   "outputs": [],
-   "source": [
+    "run(f'find {PROJECT_DIR} -type f | sort')\n",
+]))
+
+# ── Section 1b: Dependencies ───────────────────────────────────────────────────
+NB["cells"].append(md("s1b", "## Section 1b - Install Dependencies"))
+NB["cells"].append(code("deps", [
     "import shutil, glob\n",
     "\n",
     "print('='*55)\n",
@@ -151,24 +118,12 @@
     "\n",
     "thrust_ok = os.path.isdir('/usr/local/cuda/include/thrust')\n",
     "print(f'  {\"OK  \" if thrust_ok else \"MISS\"} Thrust headers')\n",
-    "print('\\nReady for build.')\n"
-   ]
-  },
-  {
-   "cell_type": "markdown",
-   "id": "s2",
-   "metadata": {},
-   "source": [
-    "## Section 2 - CMake Build (4-6 minutes)"
-   ]
-  },
-  {
-   "cell_type": "code",
-   "execution_count": null,
-   "id": "build",
-   "metadata": {},
-   "outputs": [],
-   "source": [
+    "print('\\nReady for build.')\n",
+]))
+
+# ── Section 2: CMake Build ─────────────────────────────────────────────────────
+NB["cells"].append(md("s2", "## Section 2 - CMake Build (4-6 minutes)"))
+NB["cells"].append(code("build", [
     "import subprocess, os\n",
     "\n",
     "PROJECT_DIR = '/kaggle/working/GravitySort-main'\n",
@@ -202,24 +157,12 @@
     "    raise RuntimeError('Build failed')\n",
     "\n",
     "print('\\nBuild complete. Executables:')\n",
-    "run(f'ls -lh {BUILD_DIR}/ | grep -v CMake | grep -v Makefile')\n"
-   ]
-  },
-  {
-   "cell_type": "markdown",
-   "id": "s3",
-   "metadata": {},
-   "source": [
-    "## Section 3 - Sorting Kernels"
-   ]
-  },
-  {
-   "cell_type": "code",
-   "execution_count": null,
-   "id": "sort",
-   "metadata": {},
-   "outputs": [],
-   "source": [
+    "run(f'ls -lh {BUILD_DIR}/ | grep -v CMake | grep -v Makefile')\n",
+]))
+
+# ── Section 3: Sorting Kernels ─────────────────────────────────────────────────
+NB["cells"].append(md("s3", "## Section 3 - Sorting Kernels"))
+NB["cells"].append(code("sort", [
     "BUILD_DIR = '/kaggle/working/build'\n",
     "\n",
     "for algo, exe in [('BITONIC','bitonic_sort'),('RADIX','radix_sort'),('ODD-EVEN','odd_even_sort')]:\n",
@@ -229,158 +172,74 @@
     "    sizes = [1<<20, 1<<24, 1<<26] if algo != 'ODD-EVEN' else [65536]\n",
     "    for N in sizes:\n",
     "        print(f'N={N:,}')\n",
-    "        run(f'{BUILD_DIR}/{exe} {N}')\n"
-   ]
-  },
-  {
-   "cell_type": "markdown",
-   "id": "s4",
-   "metadata": {},
-   "source": [
-    "## Section 4 - ML Reduction Kernels"
-   ]
-  },
-  {
-   "cell_type": "code",
-   "execution_count": null,
-   "id": "reduce",
-   "metadata": {},
-   "outputs": [],
-   "source": [
+    "        run(f'{BUILD_DIR}/{exe} {N}')\n",
+]))
+
+# ── Section 4: Reduction ───────────────────────────────────────────────────────
+NB["cells"].append(md("s4", "## Section 4 - ML Reduction Kernels"))
+NB["cells"].append(code("reduce", [
     "BUILD_DIR = '/kaggle/working/build'\n",
     "print('='*50)\n",
     "print('REDUCTION: 4 variants vs thrust::reduce')\n",
     "print('='*50)\n",
     "for N in [1<<24, 1<<25, 1<<27]:\n",
     "    print(f'\\nN={N:,}')\n",
-    "    run(f'{BUILD_DIR}/reduction_demo {N}')\n"
-   ]
-  },
-  {
-   "cell_type": "markdown",
-   "id": "s5",
-   "metadata": {},
-   "source": [
-    "## Section 5 - Memory Optimization Demos"
-   ]
-  },
-  {
-   "cell_type": "code",
-   "execution_count": null,
-   "id": "mem",
-   "metadata": {},
-   "outputs": [],
-   "source": [
+    "    run(f'{BUILD_DIR}/reduction_demo {N}')\n",
+]))
+
+# ── Section 5: Memory ──────────────────────────────────────────────────────────
+NB["cells"].append(md("s5", "## Section 5 - Memory Optimization Demos"))
+NB["cells"].append(code("mem", [
     "BUILD_DIR = '/kaggle/working/build'\n",
     "print('-- Bank Conflict Demo --')\n",
     "run(f'{BUILD_DIR}/shared_mem_demo')\n",
     "print('\\n-- Stream Concurrency Demo --')\n",
-    "run(f'{BUILD_DIR}/streams_demo')\n"
-   ]
-  },
-  {
-   "cell_type": "markdown",
-   "id": "s6",
-   "metadata": {},
-   "source": [
-    "## Section 6 - GravityTensor Operations"
-   ]
-  },
-  {
-   "cell_type": "code",
-   "execution_count": null,
-   "id": "tensor",
-   "metadata": {},
-   "outputs": [],
-   "source": [
+    "run(f'{BUILD_DIR}/streams_demo')\n",
+]))
+
+# ── Section 6: Tensor ──────────────────────────────────────────────────────────
+NB["cells"].append(md("s6", "## Section 6 - GravityTensor Operations"))
+NB["cells"].append(code("tensor", [
     "BUILD_DIR = '/kaggle/working/build'\n",
-    "run(f'{BUILD_DIR}/tensor_demo')\n"
-   ]
-  },
-  {
-   "cell_type": "markdown",
-   "id": "s7",
-   "metadata": {},
-   "source": [
-    "## Section 7 - Google Benchmark"
-   ]
-  },
-  {
-   "cell_type": "code",
-   "execution_count": null,
-   "id": "bench",
-   "metadata": {},
-   "outputs": [],
-   "source": [
+    "run(f'{BUILD_DIR}/tensor_demo')\n",
+]))
+
+# ── Section 7: Benchmark ───────────────────────────────────────────────────────
+NB["cells"].append(md("s7", "## Section 7 - Google Benchmark"))
+NB["cells"].append(code("bench", [
     "BUILD_DIR = '/kaggle/working/build'\n",
     "print('-- Sort Benchmark --')\n",
     "run(f'{BUILD_DIR}/bench_sort --benchmark_format=console --benchmark_repetitions=3')\n",
     "print('\\n-- Reduce Benchmark --')\n",
-    "run(f'{BUILD_DIR}/bench_reduce --benchmark_format=console --benchmark_repetitions=3')\n"
-   ]
-  },
-  {
-   "cell_type": "markdown",
-   "id": "s8",
-   "metadata": {},
-   "source": [
-    "## Section 8 - Nsight Profiling"
-   ]
-  },
-  {
-   "cell_type": "code",
-   "execution_count": null,
-   "id": "nsight",
-   "metadata": {},
-   "outputs": [],
-   "source": [
+    "run(f'{BUILD_DIR}/bench_reduce --benchmark_format=console --benchmark_repetitions=3')\n",
+]))
+
+# ── Section 8: Nsight ──────────────────────────────────────────────────────────
+NB["cells"].append(md("s8", "## Section 8 - Nsight Profiling"))
+NB["cells"].append(code("nsight", [
     "BUILD_DIR = '/kaggle/working/build'\n",
     "NCU = 'ncu --set full --clock-control none --target-processes all'\n",
     "print('-- Profiling: bitonic_sort --')\n",
     "run(f'{NCU} {BUILD_DIR}/bitonic_sort 4194304')\n",
     "print('\\n-- Nsight Systems: streams --')\n",
     "run(f'nsys profile --trace=cuda,nvtx --output=/kaggle/working/streams_report {BUILD_DIR}/streams_demo')\n",
-    "print('Profile saved: /kaggle/working/streams_report.nsys-rep')\n"
-   ]
-  },
-  {
-   "cell_type": "markdown",
-   "id": "s9",
-   "metadata": {},
-   "source": [
-    "## Section 9 - Roofline Model"
-   ]
-  },
-  {
-   "cell_type": "code",
-   "execution_count": null,
-   "id": "roofline",
-   "metadata": {},
-   "outputs": [],
-   "source": [
+    "print('Profile saved: /kaggle/working/streams_report.nsys-rep')\n",
+]))
+
+# ── Section 9: Roofline ────────────────────────────────────────────────────────
+NB["cells"].append(md("s9", "## Section 9 - Roofline Model"))
+NB["cells"].append(code("roofline", [
     "import sys\n",
     "PROJECT_DIR = '/kaggle/working/GravitySort-main'\n",
     "sys.path.insert(0, f'{PROJECT_DIR}/profiling')\n",
     "run(f'python {PROJECT_DIR}/profiling/roofline.py --output /kaggle/working/roofline.png')\n",
     "from IPython.display import Image, display\n",
-    "display(Image('/kaggle/working/roofline.png'))\n"
-   ]
-  },
-  {
-   "cell_type": "markdown",
-   "id": "s10",
-   "metadata": {},
-   "source": [
-    "## Section 10 - Sort Animation"
-   ]
-  },
-  {
-   "cell_type": "code",
-   "execution_count": null,
-   "id": "viz",
-   "metadata": {},
-   "outputs": [],
-   "source": [
+    "display(Image('/kaggle/working/roofline.png'))\n",
+]))
+
+# ── Section 10: Visualization ──────────────────────────────────────────────────
+NB["cells"].append(md("s10", "## Section 10 - Sort Animation"))
+NB["cells"].append(code("viz", [
     "import numpy as np\n",
     "import matplotlib\n",
     "matplotlib.use('Agg')\n",
@@ -432,24 +291,12 @@
     "\n",
     "ani = animation.FuncAnimation(fig, update, frames=len(steps), interval=80, blit=False)\n",
     "plt.tight_layout()\n",
-    "HTML(ani.to_jshtml())\n"
-   ]
-  },
-  {
-   "cell_type": "markdown",
-   "id": "s11",
-   "metadata": {},
-   "source": [
-    "## Section 11 - Unit Tests"
-   ]
-  },
-  {
-   "cell_type": "code",
-   "execution_count": null,
-   "id": "tests",
-   "metadata": {},
-   "outputs": [],
-   "source": [
+    "HTML(ani.to_jshtml())\n",
+]))
+
+# ── Section 11: Tests ──────────────────────────────────────────────────────────
+NB["cells"].append(md("s11", "## Section 11 - Unit Tests"))
+NB["cells"].append(code("tests", [
     "BUILD_DIR = '/kaggle/working/build'\n",
     "print('='*50)\n",
     "print('UNIT TESTS')\n",
@@ -460,8 +307,11 @@
     "if r1.returncode == 0 and r2.returncode == 0:\n",
     "    print('ALL TESTS PASSED')\n",
     "else:\n",
-    "    print('SOME TESTS FAILED - check output above')\n"
-   ]
-  }
- ]
-}
+    "    print('SOME TESTS FAILED - check output above')\n",
+]))
+
+NB_PATH = "GravitySort/GravitySort_Kaggle.ipynb"
+with open(NB_PATH, "w", encoding="utf-8") as f:
+    json.dump(NB, f, indent=1, ensure_ascii=False)
+
+print(f"Written {len(NB['cells'])} cells to {NB_PATH}")
