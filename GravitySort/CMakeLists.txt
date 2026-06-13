@@ -1,6 +1,9 @@
 cmake_minimum_required(VERSION 3.24)
 project(GravitySort LANGUAGES CXX CUDA)
 
+# ── CUDA Toolkit (provides cuda_runtime.h path for C++ files) ───────────────
+find_package(CUDAToolkit REQUIRED)
+
 # ── CUDA / C++ standards ────────────────────────────────────────────────────
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CUDA_STANDARD 17)
@@ -47,6 +50,7 @@ include_directories(${PROJECT_SOURCE_DIR}/tensor)
 include_directories(${PROJECT_SOURCE_DIR}/kernels)
 include_directories(${PROJECT_SOURCE_DIR}/memory)
 include_directories(${PROJECT_SOURCE_DIR}/viz)
+include_directories(${CUDAToolkit_INCLUDE_DIRS})
 
 # ── OpenGL + CUDA interop (optional) ────────────────────────────────────────
 # Requires: libglfw3-dev libglew-dev  (sudo apt install libglfw3-dev libglew-dev)
@@ -88,19 +92,24 @@ add_cuda_exe(tensor_demo tensor/tensor_ops.cu)
 
 # ── Benchmarks ───────────────────────────────────────────────────────────────
 add_executable(bench_sort    profiling/bench_sort.cpp)
-target_link_libraries(bench_sort    PRIVATE benchmark::benchmark cublas)
+target_include_directories(bench_sort    PRIVATE ${CUDAToolkit_INCLUDE_DIRS})
+target_link_libraries(bench_sort    PRIVATE benchmark::benchmark CUDA::cudart CUDA::cublas)
 set_property(TARGET bench_sort    PROPERTY CXX_STANDARD 17)
 
 add_executable(bench_reduce  profiling/bench_reduce.cpp)
-target_link_libraries(bench_reduce  PRIVATE benchmark::benchmark cublas)
+target_include_directories(bench_reduce  PRIVATE ${CUDAToolkit_INCLUDE_DIRS})
+target_link_libraries(bench_reduce  PRIVATE benchmark::benchmark CUDA::cudart CUDA::cublas)
 set_property(TARGET bench_reduce  PROPERTY CXX_STANDARD 17)
 
 # ── Tests ────────────────────────────────────────────────────────────────────
 enable_testing()
 add_executable(test_sort   tests/test_sort.cpp)
-target_link_libraries(test_sort   PRIVATE GTest::gtest_main cublas)
+target_include_directories(test_sort   PRIVATE ${CUDAToolkit_INCLUDE_DIRS})
+target_link_libraries(test_sort   PRIVATE GTest::gtest_main CUDA::cudart CUDA::cublas)
+
 add_executable(test_reduce tests/test_reduce.cpp)
-target_link_libraries(test_reduce PRIVATE GTest::gtest_main cublas)
+target_include_directories(test_reduce PRIVATE ${CUDAToolkit_INCLUDE_DIRS})
+target_link_libraries(test_reduce PRIVATE GTest::gtest_main CUDA::cudart CUDA::cublas)
 
 include(GoogleTest)
 gtest_discover_tests(test_sort)
@@ -108,7 +117,8 @@ gtest_discover_tests(test_reduce)
 
 # ── pybind11 Python module ───────────────────────────────────────────────────
 pybind11_add_module(gravity_sort_py viz/gravity_sort.cpp)
-target_link_libraries(gravity_sort_py PRIVATE cublas)
+target_include_directories(gravity_sort_py PRIVATE ${CUDAToolkit_INCLUDE_DIRS})
+target_link_libraries(gravity_sort_py PRIVATE CUDA::cudart CUDA::cublas)
 
 # ── OpenGL + CUDA interop visualizer ─────────────────────────────────────────
 if(HAS_OPENGL)
