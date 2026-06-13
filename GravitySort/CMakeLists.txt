@@ -90,26 +90,22 @@ add_cuda_exe(streams_demo    memory/streams.cu)
 # ── Tensor ops ───────────────────────────────────────────────────────────────
 add_cuda_exe(tensor_demo tensor/tensor_ops.cu)
 
-# ── Benchmarks ───────────────────────────────────────────────────────────────
-add_executable(bench_sort    profiling/bench_sort.cpp)
-target_include_directories(bench_sort    PRIVATE ${CUDAToolkit_INCLUDE_DIRS})
-target_link_libraries(bench_sort    PRIVATE benchmark::benchmark CUDA::cudart CUDA::cublas)
+# ── Benchmarks (compiled by nvcc — Thrust GPU code requires it) ───────────────
+add_cuda_exe(bench_sort    profiling/bench_sort.cu)
+target_link_libraries(bench_sort    PRIVATE benchmark::benchmark)
 set_property(TARGET bench_sort    PROPERTY CXX_STANDARD 17)
 
-add_executable(bench_reduce  profiling/bench_reduce.cpp)
-target_include_directories(bench_reduce  PRIVATE ${CUDAToolkit_INCLUDE_DIRS})
-target_link_libraries(bench_reduce  PRIVATE benchmark::benchmark CUDA::cudart CUDA::cublas)
+add_cuda_exe(bench_reduce  profiling/bench_reduce.cu)
+target_link_libraries(bench_reduce  PRIVATE benchmark::benchmark)
 set_property(TARGET bench_reduce  PROPERTY CXX_STANDARD 17)
 
-# ── Tests ────────────────────────────────────────────────────────────────────
+# ── Tests (compiled by nvcc) ────────────────────────────────────────────────────
 enable_testing()
-add_executable(test_sort   tests/test_sort.cpp)
-target_include_directories(test_sort   PRIVATE ${CUDAToolkit_INCLUDE_DIRS})
-target_link_libraries(test_sort   PRIVATE GTest::gtest_main CUDA::cudart CUDA::cublas)
+add_cuda_exe(test_sort   tests/test_sort.cpp)
+target_link_libraries(test_sort   PRIVATE GTest::gtest_main)
 
-add_executable(test_reduce tests/test_reduce.cpp)
-target_include_directories(test_reduce PRIVATE ${CUDAToolkit_INCLUDE_DIRS})
-target_link_libraries(test_reduce PRIVATE GTest::gtest_main CUDA::cudart CUDA::cublas)
+add_cuda_exe(test_reduce tests/test_reduce.cpp)
+target_link_libraries(test_reduce PRIVATE GTest::gtest_main)
 
 include(GoogleTest)
 gtest_discover_tests(test_sort)
