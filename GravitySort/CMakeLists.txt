@@ -50,15 +50,22 @@ FetchContent_Declare(pybind11
 FetchContent_MakeAvailable(pybind11)
 
 # ── OpenGL (optional — headless Kaggle will skip) ─────────────────────────────
-find_package(OpenGL QUIET)
-find_package(glfw3  QUIET)
-find_package(GLEW   QUIET)
-if(OpenGL_FOUND AND glfw3_FOUND AND GLEW_FOUND)
-  set(HAS_OPENGL TRUE)
-  message(STATUS "OpenGL found — building gravity_viz")
+option(BUILD_VIZ "Build OpenGL Visualizer (gravity_viz)" ON)
+
+if(BUILD_VIZ)
+  find_package(OpenGL QUIET)
+  find_package(glfw3  QUIET)
+  find_package(GLEW   QUIET)
+  if(OpenGL_FOUND AND glfw3_FOUND AND GLEW_FOUND)
+    set(HAS_OPENGL TRUE)
+    message(STATUS "OpenGL found — building gravity_viz")
+  else()
+    set(HAS_OPENGL FALSE)
+    message(STATUS "OpenGL/GLFW/GLEW not found — gravity_viz skipped (use Python frontend)")
+  endif()
 else()
   set(HAS_OPENGL FALSE)
-  message(STATUS "OpenGL/GLFW/GLEW not found — gravity_viz skipped (use Python frontend)")
+  message(STATUS "BUILD_VIZ=OFF — gravity_viz skipped")
 endif()
 
 # ── Helper macro: CUDA executable (nvcc compiles ALL source files) ─────────────
