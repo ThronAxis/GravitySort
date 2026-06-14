@@ -79,10 +79,11 @@ macro(add_cuda_exe target)
   target_link_libraries(${target} PRIVATE CUDA::cudart CUDA::cublas)
 endmacro()
 
-# ── Sorting kernels ───────────────────────────────────────────────────────────
+# ── Sorting kernels ───────────────────────────────────────────────────────────────
 add_cuda_exe(bitonic_sort  kernels/bitonic.cu)
 add_cuda_exe(radix_sort    kernels/radix.cu)
 add_cuda_exe(odd_even_sort kernels/odd_even.cu)
+add_cuda_exe(merge_sort    kernels/merge_sort.cu)   # NEW: GPU stable merge sort
 
 # ── Reduction ─────────────────────────────────────────────────────────────────
 add_cuda_exe(reduction_demo kernels/reduction.cu)
@@ -94,11 +95,12 @@ add_cuda_exe(streams_demo    memory/streams.cu)
 # ── Tensor ops ────────────────────────────────────────────────────────────────
 add_cuda_exe(tensor_demo tensor/tensor_ops.cu)
 
-# ── Benchmarks (.cu = nvcc, Thrust GPU code requires it) ──────────────────────
+# ── Benchmarks (compiled by nvcc — Thrust GPU code requires it) ───────────────
 add_cuda_exe(bench_sort   profiling/bench_sort.cu)
 target_link_libraries(bench_sort   PRIVATE benchmark::benchmark)
 
 add_cuda_exe(bench_reduce profiling/bench_reduce.cu)
+target_include_directories(bench_reduce PRIVATE ${PROJECT_SOURCE_DIR}/kernels)  # for reduce_kernels.cuh
 target_link_libraries(bench_reduce PRIVATE benchmark::benchmark)
 
 # ── Unit Tests (.cu = nvcc, Thrust GPU code requires it) ──────────────────────
